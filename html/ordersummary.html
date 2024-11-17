@@ -174,7 +174,95 @@ button {
         </div>
     </div>
 
-    <script src="../js/ordersummary.js"></script>
+    <script>
+
+function formatCurrency(amount) {
+    return `Php ${amount.toFixed(2)}`;
+}
+
+// Retrieve the current orderId and initialize orderId from localStorage or default to 1
+let orderId = parseInt(localStorage.getItem('orderId')) || 1;
+
+// Retrieve order summary from localStorage
+const orderSummary = JSON.parse(localStorage.getItem('orderSummary'));
+
+if (orderSummary) {
+    const summaryDiv = document.getElementById('summary');
+    summaryDiv.innerHTML = ` 
+        <h2 class="dine-option">Dine Option : ${orderSummary.dineOption}</h2>
+        <h2 class="pay-option">Payment Option : ${orderSummary.paymentOption}</h2>
+        <h4>Order Details :</h4>
+        <ul>
+            ${Object.entries(orderSummary.orders).map(([itemName, details]) => `
+                <li>${itemName} <span>${formatCurrency(details.price)} x ${details.quantity}</span></li>
+            `).join('')}
+        </ul>
+        <div class="total">Total: ${formatCurrency(orderSummary.total)}</div>`;
+} else {
+    document.getElementById('summary').innerHTML = '<p id="nof">No order found.</p>';
+}
+
+// Flag to prevent multiple confirmations
+let isConfirmed = false;
+
+// Delete Order Button Functionality
+document.getElementById('deleteOrder').addEventListener('click', () => {
+    // Allow editing the order if it has been confirmed
+    if (isConfirmed) {
+        window.location.href = 'order2.html'; // Redirect to the order page for editing
+    } else {
+        localStorage.removeItem('orderSummary');
+        window.location.href = 'order2.html'; // Redirect to order page to re-order
+    }
+});
+
+// Confirm Order Button Functionality
+document.getElementById('confirmOrder').addEventListener('click', () => {
+    if (!orderSummary) {
+        alert('No order summary found. Please add items to your order.');
+        return;
+    }
+
+    isConfirmed = true;
+
+    // Prepare the sales order
+    const salesOrder = {
+        orderId: orderId,
+        summary: Object.keys(orderSummary.orders).join(", "),
+        diningPreference: orderSummary.dineOption,
+        paymentMethod: orderSummary.paymentOption,
+        total: formatCurrency(orderSummary.total)
+    };
+
+    // Retrieve current sales data
+    let salesData = JSON.parse(localStorage.getItem('salesData')) || [];
+
+    // Update sales data in localStorage
+    salesData.push(salesOrder);
+    localStorage.setItem('salesData', JSON.stringify(salesData));
+
+    // Clear the order summary to prevent duplicate entries
+    localStorage.removeItem('orderSummary');
+
+    // Increment orderId for the next order and save it
+    orderId++;
+    localStorage.setItem('orderId', orderId);
+
+    // Show the modal after printing
+    window.print();
+
+    // Show the modal message
+    const modal = document.getElementById('confirmationModal');
+    modal.style.display = "block";
+
+    // Close the modal after 5 seconds
+    setTimeout(() => {
+modal.style.display = "none";  // Hide the modal
+window.location.href = "index.html";  // Redirect to index.html after 5 seconds
+}, 5000);
+});
+
+    </script>
 
 </body>
 </html>
