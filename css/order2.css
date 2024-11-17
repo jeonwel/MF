@@ -97,7 +97,7 @@ h1, .slogan{
 
 .fa-utensils {
     padding: 12px;
-    background-color: #CBD2A4;
+    background-color: #b4bb8d;
     border-radius: 8px;
     cursor: pointer;
 }
@@ -124,7 +124,7 @@ h1, .slogan{
 
 /* Cover Section */
 .cover {
-    background-image: url(../images/coverbg-order2.jpg);
+    background-image: url(../images/bg3.jpg);
     background-size: cover;
     height: 40vh;
     background-position: center;
