@@ -172,66 +172,77 @@ checkoutButton.addEventListener('click', () => {
 });
 
 // Search Functionality
-document.getElementById('searchInput').addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
     const cards = document.querySelectorAll('.card');
     const sections = document.querySelectorAll('.section-header');
 
-    let categoryFound = false;
-    let itemFound = false;
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const searchTerm = this.value.toLowerCase().trim();
+            let categoryFound = false;
+            let itemFound = false;
 
-    // Show all sections and cards by default when the search term is empty
-    if (searchTerm.trim() === "") {
-        sections.forEach(section => {
-            section.classList.remove('hidden');  // Show all sections
-        });
-        cards.forEach(card => {
-            card.style.display = '';  // Show all cards
-        });
-        return;  // Exit early as we don't need to search
-    }
+            // Show all sections and cards if search term is empty
+            if (!searchTerm) {
+                sections.forEach(section => {
+                    section.classList.remove('hidden'); // Show all sections
+                });
+                cards.forEach(card => {
+                    card.style.display = ''; // Show all cards
+                });
+                return; // Exit early
+            }
 
-    // Hide all sections initially
-    sections.forEach(section => {
-        section.classList.add('hidden');
-    });
+            // Hide all sections initially
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
 
-    // Check if the search term matches any category (section title)
-    sections.forEach(section => {
-        const categoryTitle = section.querySelector('.section-heading').textContent.toLowerCase();
-        if (categoryTitle.includes(searchTerm)) {
-            section.classList.remove('hidden');  // Show the matching category
-            categoryFound = true;
-        }
-    });
+            // Check if the search term matches any category (section title)
+            sections.forEach(section => {
+                const categoryTitleElement = section.querySelector('.section-heading');
+                const categoryTitle = categoryTitleElement ? categoryTitleElement.textContent.toLowerCase() : '';
 
-    // If no category found, check for items
-    if (!categoryFound) {
-        cards.forEach(card => {
-            const title = card.querySelector('.card-title').textContent.toLowerCase();
-            const description = card.querySelector('p').textContent.toLowerCase();
-
-            // Check if the title or description includes the search term
-            if (title.includes(searchTerm) || description.includes(searchTerm)) {
-                card.style.display = '';  // Show the card
-                itemFound = true;
-
-                // Get the parent section of the card and show it if not already shown
-                const section = card.closest('.section-header');
-                if (section && section.classList.contains('hidden')) {
-                    section.classList.remove('hidden');  // Show the section if it contains matching cards
+                if (categoryTitle.includes(searchTerm)) {
+                    section.classList.remove('hidden'); // Show the matching category
+                    categoryFound = true;
                 }
-            } else {
-                card.style.display = 'none';  // Hide the card
+            });
+
+            // If no category matches, check for individual items
+            if (!categoryFound) {
+                cards.forEach(card => {
+                    const cardTitleElement = card.querySelector('.card-title');
+                    const cardTitle = cardTitleElement ? cardTitleElement.textContent.toLowerCase() : '';
+
+                    const descriptionElement = card.querySelector('p');
+                    const description = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+
+                    // Match title or description with the search term
+                    if (cardTitle.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = ''; // Show the matching card
+                        itemFound = true;
+
+                        // Ensure the parent section is visible
+                        const section = card.closest('.section-header');
+                        if (section) {
+                            section.classList.remove('hidden');
+                        }
+                    } else {
+                        card.style.display = 'none'; // Hide non-matching cards
+                    }
+                });
+
+                // If no items found, log a message (optional UI feedback)
+                if (!itemFound) {
+                    console.log("No items found."); // Replace with UI message if needed
+                }
             }
         });
-
-        // If no items match, show message (optional)
-        if (!itemFound) {
-            console.log("No items found.");  // Replace with a UI message if needed
-        }
     }
 });
+
 // Show menu items when clicked
 document.addEventListener('DOMContentLoaded', function () {
     const menuLinks = document.querySelectorAll('.menu-item a');
